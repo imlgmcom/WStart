@@ -29,11 +29,17 @@ jobs:
       - name: Package release
         run: npx electron-builder --win dir
 
+      - name: Compress release to zip
+        uses: vimtor/action-zip@v1
+        with:
+          files: release/${{ github.ref_name }}/win-unpacked/
+          dest: release/${{ github.ref_name }}/DawnLauncher-${{ github.ref_name }}.zip
+
       - name: Upload release assets
         uses: actions/upload-artifact@v4
         with:
           name: dawn-launcher-${{ github.ref_name }}
-          path: release/${{ github.ref_name }}/
+          path: release/${{ github.ref_name }}/DawnLauncher-${{ github.ref_name }}.zip
 
   release:
     needs: build
@@ -67,7 +73,7 @@ jobs:
             
             ## 下载
             请从下方下载对应平台的版本
-          artifacts: release/${{ github.ref_name }}/**/*
+          artifacts: release/${{ github.ref_name }}/DawnLauncher-${{ github.ref_name }}.zip
           draft: false
           prerelease: false
           token: ${{ secrets.GITHUB_TOKEN }}
