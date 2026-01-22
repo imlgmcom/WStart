@@ -20,6 +20,10 @@ jobs:
           node-version: '18'
           cache: 'npm'
 
+      - name: Get version from package.json
+        id: get-version
+        run: echo "::set-output name=version::$(node -p "require('./package.json').version")"
+
       - name: Install dependencies
         run: npm install
 
@@ -32,14 +36,14 @@ jobs:
       - name: Compress release to zip
         uses: vimtor/action-zip@v1
         with:
-          files: release/${{ github.ref_name }}/win-unpacked/
-          dest: release/${{ github.ref_name }}/DawnLauncher-${{ github.ref_name }}.zip
+          files: release/${{ steps.get-version.outputs.version }}/win-unpacked/
+          dest: release/${{ steps.get-version.outputs.version }}/DawnLauncher-v${{ steps.get-version.outputs.version }}.zip
 
       - name: Upload release assets
         uses: actions/upload-artifact@v4
         with:
-          name: dawn-launcher-${{ github.ref_name }}
-          path: release/${{ github.ref_name }}/DawnLauncher-${{ github.ref_name }}.zip
+          name: dawn-launcher-v${{ steps.get-version.outputs.version }}
+          path: release/${{ steps.get-version.outputs.version }}/DawnLauncher-v${{ steps.get-version.outputs.version }}.zip
 
   release:
     needs: build
@@ -51,29 +55,30 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Get version from package.json
+        id: get-version
+        run: echo "::set-output name=version::$(node -p "require('./package.json').version")"
+
       - name: Download release assets
         uses: actions/download-artifact@v4
         with:
-          name: dawn-launcher-${{ github.ref_name }}
-          path: release/${{ github.ref_name }}/
+          name: dawn-launcher-v${{ steps.get-version.outputs.version }}
+          path: release/${{ steps.get-version.outputs.version }}/
 
       - name: Create GitHub Release
         uses: ncipollo/release-action@v1
         with:
-          tag: ${{ github.ref_name }}
-          name: Release ${{ github.ref_name }}
+          tag: v${{ steps.get-version.outputs.version }}
+          name: Release v${{ steps.get-version.outputs.version }}
           body: |
-            Dawn Launcher ${{ github.ref_name }} 发布
+            Dawn Launcher v${{ steps.get-version.outputs.version }} 发布
             
             ## 更新内容
             - 修复了Steam游戏自动检测功能
             - 优化了背景图处理
             - 改进了分类外观
             - 修复了URL片段处理
-            
-            ## 下载
-            请从下方下载对应平台的版本
-          artifacts: release/${{ github.ref_name }}/DawnLauncher-${{ github.ref_name }}.zip
+          artifacts: release/${{ steps.get-version.outputs.version }}/DawnLauncher-v${{ steps.get-version.outputs.version }}.zip
           draft: false
           prerelease: false
           token: ${{ secrets.GITHUB_TOKEN }}
