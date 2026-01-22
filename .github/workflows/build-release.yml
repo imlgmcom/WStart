@@ -1,0 +1,73 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*'  # 当推送标签（如 v26.1.214）时触发
+  workflow_dispatch:  # 允许手动触发
+
+jobs:
+  build:
+    runs-on: windows-latest  # 使用 Windows 环境构建
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build project
+        run: npm run build
+
+      - name: Package release
+        run: npx electron-builder --win dir
+
+      - name: Upload release assets
+        uses: actions/upload-artifact@v4
+        with:
+          name: dawn-launcher-${{ github.ref_name }}
+          path: release/${{ github.ref_name }}/
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download release assets
+        uses: actions/download-artifact@v4
+        with:
+          name: dawn-launcher-${{ github.ref_name }}
+          path: release/${{ github.ref_name }}/
+
+      - name: Create GitHub Release
+        uses: ncipollo/release-action@v1
+        with:
+          tag: ${{ github.ref_name }}
+          name: Release ${{ github.ref_name }}
+          body: |
+            Dawn Launcher ${{ github.ref_name }} 发布
+            
+            ## 更新内容
+            - 修复了Steam游戏自动检测功能
+            - 优化了背景图处理
+            - 改进了分类外观
+            - 修复了URL片段处理
+            
+            ## 下载
+            请从下方下载对应平台的版本
+          artifacts: release/${{ github.ref_name }}/**/*
+          draft: false
+          prerelease: false
+          token: ${{ secrets.GITHUB_TOKEN }}
