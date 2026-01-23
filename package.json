@@ -22,7 +22,7 @@
     "preview": "vite preview",
     "rsbuild": "napi build --release --strip ./native",
     "rebuild": "electron rebuild.js",
-    "postinstall": "yarn run rebuild && yarn run rsbuild"
+    "postinstall": "npm run rebuild && npm run rsbuild"
   },
   "napi": {
     "name": "addon"
