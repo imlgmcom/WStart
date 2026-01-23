@@ -14,9 +14,10 @@ if (fs.existsSync(nativeDir)) {
 
 // 执行 electron-rebuild 命令
 try {
-  // 从 package.json 中获取 Electron 版本
-  const pkg = require('./package.json');
-  const electronVersion = pkg.devDependencies.electron.replace('^', '').replace('~', '');
+  // 使用 electron --version 获取实际安装的 Electron 版本
+  let electronVersion = execSync('npx electron --version', { encoding: 'utf8' }).trim();
+  // 移除 'v' 前缀，例如将 'v28.3.1' 转换为 '28.3.1'
+  electronVersion = electronVersion.replace('v', '');
   
   console.log(`使用 Electron 版本 ${electronVersion} 重建原生模块...`);
   
