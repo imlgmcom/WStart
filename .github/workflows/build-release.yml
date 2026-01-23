@@ -45,13 +45,13 @@ jobs:
         uses: vimtor/action-zip@v1
         with:
           files: release/${{ steps.get-version.outputs.version }}/win-unpacked/
-          dest: release/${{ steps.get-version.outputs.version }}/DawnLauncher-v${{ steps.get-version.outputs.version }}.zip
+          dest: release/${{ steps.get-version.outputs.version }}/Wstart-v${{ steps.get-version.outputs.version }}.zip
 
       - name: Upload release assets
         uses: actions/upload-artifact@v4
         with:
-          name: dawn-launcher-v${{ steps.get-version.outputs.version }}
-          path: release/${{ steps.get-version.outputs.version }}/DawnLauncher-v${{ steps.get-version.outputs.version }}.zip
+          name: Wstart-v${{ steps.get-version.outputs.version }}
+          path: release/${{ steps.get-version.outputs.version }}/Wstart-v${{ steps.get-version.outputs.version }}.zip
 
   release:
     needs: build
@@ -75,7 +75,7 @@ jobs:
       - name: Download release assets
         uses: actions/download-artifact@v4
         with:
-          name: dawn-launcher-v${{ steps.get-version.outputs.version }}
+          name: Wstart-v${{ steps.get-version.outputs.version }}
           path: ./
 
       - name: Create GitHub Release
@@ -84,14 +84,14 @@ jobs:
           tag: v${{ steps.get-version.outputs.version }}
           name: Release v${{ steps.get-version.outputs.version }}
           body: |
-            Dawn Launcher v${{ steps.get-version.outputs.version }} 发布
+            Wstart v${{ steps.get-version.outputs.version }} 发布
             
             ## 更新内容
             - 修复了Steam游戏自动检测功能
             - 优化了背景图处理
             - 改进了分类外观
             - 修复了URL片段处理
-          artifacts: DawnLauncher-v${{ steps.get-version.outputs.version }}.zip
+          artifacts: Wstart-v${{ steps.get-version.outputs.version }}.zip
           draft: false
           prerelease: false
           token: ${{ secrets.GITHUB_TOKEN }}
