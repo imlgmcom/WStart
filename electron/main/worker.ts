@@ -20,7 +20,9 @@ export interface AppxInfo {
 }
 
 // addon
-global.addon = require("../native/addon.node");
+const path = require('path');
+const addonPath = path.join(process.resourcesPath, 'app.asar.unpacked', 'native', 'addon.node');
+global.addon = require(addonPath);
 
 // 接收消息
 process.parentPort.once("message", async (event) => {

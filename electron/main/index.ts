@@ -69,7 +69,9 @@ app.whenReady().then(() => {
       return;
     }
     // addon
-    global.addon = require("../native/addon.node");
+    const path = require('path');
+    const addonPath = path.join(process.resourcesPath, 'app.asar.unpacked', 'native', 'addon.node');
+    global.addon = require(addonPath);
     if (global.first) {
       // 首次添加，判断系统语言
       if (app.getLocale().toLowerCase().indexOf("zh-") === 0) {
