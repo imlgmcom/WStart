@@ -29,6 +29,18 @@ jobs:
           $VERSION = $TAG_NAME.Substring(1)  # 移除前缀 'v'
           echo "version=$VERSION" >> $env:GITHUB_OUTPUT
 
+      - name: Update package.json version
+        shell: pwsh
+        run: |
+          $VERSION = "${{ steps.get-version.outputs.version }}"
+          # 更新 package.json 中的版本号，确保与 tag 一致
+          $PackageJson = Get-Content -Path "package.json" -Raw | ConvertFrom-Json
+          $PackageJson.version = $VERSION
+          $PackageJson | ConvertTo-Json -Depth 100 | Set-Content -Path "package.json"
+          # 验证更新
+          $UpdatedPackageJson = Get-Content -Path "package.json" -Raw | ConvertFrom-Json
+          Write-Host "Updated package.json version to: $($UpdatedPackageJson.version)"
+
       - name: Install dependencies
         run: npm install
 
@@ -39,7 +51,7 @@ jobs:
         run: npm run build
 
       - name: Package release
-        run: npx electron-builder --win dir -c.version=${{ steps.get-version.outputs.version }}
+        run: npx electron-builder --win dir
 
       - name: Compress release to zip
         uses: vimtor/action-zip@v1
