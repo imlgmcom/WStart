@@ -39,7 +39,7 @@ jobs:
         run: npm run build
 
       - name: Package release
-        run: npx electron-builder --win dir --app-version=${{ steps.get-version.outputs.version }}
+        run: npx electron-builder --win dir -c.version=${{ steps.get-version.outputs.version }}
 
       - name: Compress release to zip
         uses: vimtor/action-zip@v1
