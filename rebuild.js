@@ -21,9 +21,18 @@ try {
   
   console.log(`使用 Electron 版本 ${electronVersion} 重建原生模块...`);
   
-  // 执行 electron-rebuild 命令，使用 --yes 自动确认安装，重建所有原生模块
+  // 获取当前架构
+  const arch = process.arch;
+  console.log(`当前架构: ${arch}`);
+  
+  // 执行 electron-rebuild 命令，明确指定所有参数，确保使用正确的 Electron 版本和头文件
+  // --with-electron-version: 指定 Electron 版本
+  // --arch: 指定架构
+  // --dist-url: 指定 Electron 头文件下载地址
+  // --force: 强制重新构建
+  // --yes: 自动确认安装
   execSync(
-    `npx --yes electron-rebuild -v ${electronVersion} -f`,
+    `npx --yes electron-rebuild --with-electron-version ${electronVersion} --arch ${arch} --dist-url https://electronjs.org/headers --force`,
     { stdio: 'inherit' }
   );
   
