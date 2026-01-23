@@ -20,7 +20,7 @@ export interface AppxInfo {
 }
 
 // addon
-global.addon = require("../../native/addon.node");
+global.addon = require("../native/addon.node");
 
 // 接收消息
 process.parentPort.once("message", async (event) => {
