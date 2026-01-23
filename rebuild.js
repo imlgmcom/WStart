@@ -22,7 +22,7 @@ try {
   
   // 执行 electron-rebuild 命令，使用 --yes 自动确认安装，重建所有原生模块
   execSync(
-    `npx --yes electron-rebuild -v ${electronVersion} -f -w better-sqlite3-multiple-ciphers`,
+    `npx --yes electron-rebuild -v ${electronVersion} -f`,
     { stdio: 'inherit' }
   );
   
