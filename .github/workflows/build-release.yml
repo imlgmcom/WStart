@@ -20,9 +20,13 @@ jobs:
           node-version: '18'
           cache: 'npm'
 
-      - name: Get version from package.json
+      - name: Get version from tag
         id: get-version
-        run: echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
+        run: |
+          # 从 tag 名称中提取版本号（例如从 v26.1.216 提取 26.1.216）
+          $TAG_NAME = "${{ github.ref_name }}"
+          $VERSION = $TAG_NAME.Substring(1)  # 移除前缀 'v'
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Install dependencies
         run: npm install
@@ -58,15 +62,19 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Get version from package.json
+      - name: Get version from tag
         id: get-version
-        run: echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
+        run: |
+          # 从 tag 名称中提取版本号（例如从 v26.1.216 提取 26.1.216）
+          TAG_NAME=${{ github.ref_name }}
+          VERSION=${TAG_NAME#v}  # 移除前缀 'v'
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Download release assets
         uses: actions/download-artifact@v4
         with:
           name: dawn-launcher-v${{ steps.get-version.outputs.version }}
-          path: release/${{ steps.get-version.outputs.version }}/
+          path: ./
 
       - name: Create GitHub Release
         uses: ncipollo/release-action@v1
@@ -81,7 +89,7 @@ jobs:
             - 优化了背景图处理
             - 改进了分类外观
             - 修复了URL片段处理
-          artifacts: release/${{ steps.get-version.outputs.version }}/DawnLauncher-v${{ steps.get-version.outputs.version }}.zip
+          artifacts: DawnLauncher-v${{ steps.get-version.outputs.version }}.zip
           draft: false
           prerelease: false
           token: ${{ secrets.GITHUB_TOKEN }}
