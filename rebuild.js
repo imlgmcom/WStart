@@ -14,6 +14,10 @@ if (fs.existsSync(nativeDir)) {
 
 // 执行 electron-rebuild 命令
 try {
+  // 首先检查 electron 是否安装成功
+  console.log('检查 electron 安装状态...');
+  execSync('npx electron --version', { stdio: 'inherit' });
+  
   // 使用 electron --version 获取实际安装的 Electron 版本
   let electronVersion = execSync('npx electron --version', { encoding: 'utf8' }).trim();
   // 移除 'v' 前缀，例如将 'v28.3.1' 转换为 '28.3.1'
@@ -25,14 +29,24 @@ try {
   const arch = process.arch;
   console.log(`当前架构: ${arch}`);
   
-  // 执行 electron-rebuild 命令，明确指定所有参数，确保使用正确的 Electron 版本和头文件
-  // --with-electron-version: 指定 Electron 版本
-  // --arch: 指定架构
-  // --dist-url: 指定 Electron 头文件下载地址
-  // --force: 强制重新构建
-  // --yes: 自动确认安装
+  // 获取当前平台
+  const platform = process.platform;
+  console.log(`当前平台: ${platform}`);
+  
+  // 输出 node 版本信息
+  console.log('Node.js 版本:');
+  execSync('node --version', { stdio: 'inherit' });
+  
+  console.log('npm 版本:');
+  execSync('npm --version', { stdio: 'inherit' });
+  
+  // 执行 electron-rebuild 命令，使用最基本的参数，确保在所有环境中都能正确工作
+  // 不使用 --with-electron-version，而是使用 -v 参数
+  // 不使用 --arch，让 electron-rebuild 自动检测
+  // 明确指定要构建的模块
+  console.log('执行 electron-rebuild 命令...');
   execSync(
-    `npx --yes electron-rebuild --with-electron-version ${electronVersion} --arch ${arch} --dist-url https://electronjs.org/headers --force`,
+    `npx --yes electron-rebuild -v ${electronVersion} --force --module-dir ./`,
     { stdio: 'inherit' }
   );
   
