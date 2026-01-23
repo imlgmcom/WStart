@@ -21,7 +21,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "rsbuild": "napi build --release --strip ./native",
-    "rebuild": "electron rebuild.js",
+    "rebuild": "node rebuild.js",
     "postinstall": "npm run rebuild && npm run rsbuild"
   },
   "napi": {

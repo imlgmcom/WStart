@@ -50,8 +50,11 @@ jobs:
       - name: Build project
         run: npm run build
 
+      - name: Build Rust native modules
+        run: npm run rsbuild
+
       - name: Package release
-        run: npx electron-builder --win dir
+        run: npx electron-builder --win dir --config electron-builder.json5
 
       - name: Compress release to zip
         uses: vimtor/action-zip@v1
