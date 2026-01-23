@@ -20,13 +20,14 @@ jobs:
           node-version: '18'
           cache: 'npm'
 
-      - name: Get version from tag
+      - name: Get version from tag (Windows)
         id: get-version
+        shell: pwsh
         run: |
-          # 从 tag 名称中提取版本号（例如从 v26.1.216 提取 26.1.216）
+          # 使用 PowerShell 语法从 tag 提取版本号
           $TAG_NAME = "${{ github.ref_name }}"
           $VERSION = $TAG_NAME.Substring(1)  # 移除前缀 'v'
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "version=$VERSION" >> $env:GITHUB_OUTPUT
 
       - name: Install dependencies
         run: npm install
@@ -62,10 +63,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Get version from tag
+      - name: Get version from tag (Ubuntu)
         id: get-version
+        shell: bash
         run: |
-          # 从 tag 名称中提取版本号（例如从 v26.1.216 提取 26.1.216）
+          # 使用 Bash 语法从 tag 提取版本号
           TAG_NAME=${{ github.ref_name }}
           VERSION=${TAG_NAME#v}  # 移除前缀 'v'
           echo "version=$VERSION" >> $GITHUB_OUTPUT
