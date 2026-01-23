@@ -11,7 +11,7 @@
     output: "release/${version}",
   },
   asarUnpack: ["**/*.node"],
-  npmRebuild: false,
+  npmRebuild: true,
   files: ["dist", "dist-electron", "native", "!node_modules/**/*"],
   win: {
     appId: "com.dawnlauncher.application",
