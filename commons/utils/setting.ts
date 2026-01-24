@@ -109,6 +109,7 @@ function getAppearance({
   fontShadowColor = "#000000",
   windowRounded = false,
   title = "Wstart",
+  titleColor = "#505050",
 }: {
   theme?: Theme | null;
   transparency?: number | null;
@@ -120,6 +121,7 @@ function getAppearance({
   fontShadowColor?: string | null;
   windowRounded?: boolean | null;
   title?: string | null;
+  titleColor?: string | null;
 }): Appearance {
   return {
     theme: theme ?? convert<Theme, Theme>(themeList[0]),
@@ -132,6 +134,7 @@ function getAppearance({
     fontShadowColor: fontShadowColor ?? "#000000",
     windowRounded: windowRounded ?? false,
     title: title ?? "Wstart",
+    titleColor: titleColor ?? "#505050",
   };
 }
 

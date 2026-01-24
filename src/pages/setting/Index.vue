@@ -497,6 +497,24 @@
                   :show-alpha="false"
                 ></NColorPicker>
               </NFormItem>
+              <NFormItem label="项目标题颜色" class="mt-1">
+                <NColorPicker
+                  v-model:value="setting.appearance.titleColor"
+                  :swatches="[
+                    '#000000',
+                    '#FFFFFF',
+                    '#FF0000',
+                    '#00FF00',
+                    '#0000FF',
+                    '#FFFF00',
+                    '#00FFFF',
+                    '#FF00FF',
+                    '#505050',
+                    '#808080'
+                  ]"
+                  size="small"
+                ></NColorPicker>
+              </NFormItem>
             </NForm>
             <NForm
               label-placement="left"

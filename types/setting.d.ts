@@ -68,6 +68,8 @@ export interface Appearance {
   windowRounded: boolean;
   // 标题
   title: string;
+  // 标题颜色
+  titleColor: string;
 }
 
 // 主题

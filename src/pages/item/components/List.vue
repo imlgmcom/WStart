@@ -66,6 +66,9 @@
         <div 
           v-if="!store.setting.item.hideItemName" 
           class="cover-card-name p-3 text-center truncate text-sm"
+          :style="{
+            color: store.setting.appearance.titleColor,
+          }"
         >
           <template
             v-if="item.name"
@@ -93,6 +96,7 @@
               : 'item-name-list'}`
           ]"
           :style="{
+            color: store.setting.appearance.titleColor,
             filter: store.setting.appearance.fontShadow
               ? 'drop-shadow(1px 1px 1px ' +
                 store.setting.appearance.fontShadowColor +
@@ -142,6 +146,7 @@
               }`,
             ]"
             :style="{
+              color: store.setting.appearance.titleColor,
               filter: store.setting.appearance.fontShadow
                 ? 'drop-shadow(1px 1px 1px ' +
                   store.setting.appearance.fontShadowColor +
