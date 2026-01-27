@@ -56,7 +56,7 @@
         >
         <div
           :id="'classification-' + classification.id"
-          class="classification-parent-content px-2 flex items-center relative h-[40px] rounded"
+          class="classification-parent-content px-2 flex items-center relative rounded"
           :class="[
             `${
               store.setting.classification.nameAlign === 'center' ||
@@ -69,6 +69,7 @@
           ]"
           :classification-id="classification.id"
           :style="{
+            height: store.setting.classification.height + 'px',
             color:
               isSelectedParent(classification.id) ||
               (store.itemSorting &&
@@ -176,8 +177,9 @@
           }"
         >
           <ul
-            class="classification-child-list h-full pl-[10px]"
+            class="classification-child-list h-full"
             :classification-parent-id="classification.id"
+            :style="{ 'padding-left': store.setting.subClassification.marginLeft + 'px' }"
           >
             <li
               v-for="(
@@ -192,7 +194,7 @@
                 '-' +
                 childIndex
               "
-              class="classification-child mb-1 px-2 flex items-center h-[30px]"
+              class="classification-child mb-1 px-2 flex items-center"
               :class="[
                 `${
                   store.setting.classification.nameAlign === 'center' ||
@@ -208,6 +210,7 @@
                 }`,
               ]"
               :style="{
+                height: store.setting.subClassification.height + 'px',
                 color:
                   isSelectedChild(childClassification.id, classification.id) ||
                   (store.itemSorting &&

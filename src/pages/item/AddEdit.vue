@@ -774,6 +774,12 @@ function convertPath() {
 function checkBackgroundImageUrl() {
   if (form.data.backgroundImage) {
     let url = form.data.backgroundImage.trim();
+    // 检测是否为纯数字（Steam游戏ID）
+    if (/^\d+$/.test(url)) {
+      // 拼接成Steam图片URL
+      form.data.backgroundImage = `https://shared.st.dl.eccdnx.com/store_item_assets/steam/apps/${url}/header.jpg`;
+      url = form.data.backgroundImage;
+    }
     // 检测是否为远程URL（http://或https://开头）
     const isRemoteUrl = /^https?:\/\//i.test(url);
     // 如果是远程URL，自动选择保存到wstart目录

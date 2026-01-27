@@ -1,12 +1,3 @@
-# Dependencies
-node_modules/
-
-# Build outputs
-dist/
-dist-electron/
-release/
-backup/
-
 # Logs
 logs
 *.log
@@ -15,6 +6,11 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
 
 # Editor directories and files
 .vscode/*
@@ -27,23 +23,25 @@ lerna-debug.log*
 *.sln
 *.sw?
 
-# Environment files
-.env
-.env.local
-.env.*.local
-
-# Temporary files
-*.tmp
-*.temp
-.cache/
+# Build output
+dist-electron
+release
 
 # Native modules
 native/
 
-# Test coverage
-coverage/
-*.lcov
+# Rust build files
+target/
 
-# Electron builder
+# Backup files
+backup/
+
+# Environment files
+.env
+
+# Windows specific
+Thumbs.db
+
+# Electron builder files
 builder-debug.yml
 builder-effective-config.yaml

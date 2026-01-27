@@ -5,7 +5,7 @@
       fontSize: store.setting.item.fontSize + 'px',
     }"
     :class="[
-      `${getLayout(classificationId) === 'list' ? 'space-y-2 px-2 py-1' : 'flex flex-wrap pb-4 gap-[16px] px-2'}`
+      `${getLayout(classificationId) === 'list' ? 'flex flex-wrap gap-[16px] px-2 py-1' : 'flex flex-wrap pb-4 gap-[16px] px-2'}`
     ]"
     :classification-id="classificationId"
     @mouseover="mouseover"
@@ -18,8 +18,8 @@
       :draggable="true"
       class="transition-all duration-200"
       :class="[
-        `${getLayout(classificationId) === 'list' ? 'list-item flex items-center w-full rounded-lg p-3 hover:bg-gray-100 dark:hover:bg-gray-700/50 item' : ''}`,
-        `${getLayout(classificationId) === 'cover' ? 'cover-card flex flex-col rounded-lg overflow-hidden bg-white dark:bg-gray-800 border relative hover:shadow-xl hover:translate-y-[-4px] item' : ''}`,
+        `${getLayout(classificationId) === 'list' ? 'list-item flex items-center rounded-lg p-3 hover:bg-gray-100 dark:hover:bg-gray-700/50 item' : ''}`,
+        `${getLayout(classificationId) === 'cover' ? 'cover-card flex flex-col rounded-lg overflow-hidden border relative hover:shadow-xl hover:translate-y-[-4px] item' : ''}`,
         `${getLayout(classificationId) === 'cover' ? 'h-full' : ''}`,
         `${getLayout(classificationId) === 'tile' ? 'item py-2 hover:shadow-xl hover:translate-y-[-4px]' : ''}`,
         `${getLayout(classificationId) === 'cover' && store.setting.item.hideItemName ? 'h-[150px]' : ''}`,
@@ -30,6 +30,8 @@
       :style="{
         backgroundColor: store.itemBatchOperationDataArray.includes(item.id)
           ? hexToRGBA(store.setting.appearance.theme.secondBackgroundColor, 0.4)
+          : getLayout(classificationId) === 'cover'
+          ? store.setting.appearance.theme.mainBackgroundColor
           : undefined,
         height:
           getLayout(classificationId) === 'tile' ||
@@ -38,7 +40,7 @@
             : getIconSize(classificationId) + 'px',
         // 为封面布局添加边框样式
         borderWidth: getLayout(classificationId) === 'cover' ? '1px' : undefined,
-        borderColor: getLayout(classificationId) === 'cover' ? 'rgba(0, 0, 0, .12)' : undefined,
+        borderColor: getLayout(classificationId) === 'cover' ? store.setting.appearance.theme.borderColor : undefined,
         borderStyle: getLayout(classificationId) === 'cover' ? 'solid' : undefined,
       }"
       :title="getItemTitle(item)"
@@ -54,7 +56,7 @@
             backgroundPosition: 'center',
             backgroundRepeat: 'no-repeat',
             height: store.setting.item.hideItemName ? '100%' : '150px',
-            backgroundColor: !item.data.localBackgroundImage && !item.data.backgroundImage ? '#f0f0f0' : undefined,
+            backgroundColor: !item.data.localBackgroundImage && !item.data.backgroundImage ? store.setting.appearance.theme.mainBackgroundColor : undefined,
           }"
         >
           <!-- Icon container -->

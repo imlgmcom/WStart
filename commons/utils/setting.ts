@@ -43,7 +43,6 @@ function getGeneral({
   delayHideMs = 0,
   switchEnglish = false,
   searchShowHideShortcutKey = "TAB",
-  checkUpdates = true,
 }: {
   startup?: boolean | null;
   startupTray?: boolean | null;
@@ -66,7 +65,6 @@ function getGeneral({
   delayHideMs?: number | null;
   switchEnglish?: boolean | null;
   searchShowHideShortcutKey?: string | null;
-  checkUpdates?: boolean | null;
 }): General {
   return {
     startup: startup ?? false,
@@ -90,7 +88,6 @@ function getGeneral({
     delayHideMs: delayHideMs ?? 0,
     switchEnglish: switchEnglish ?? false,
     searchShowHideShortcutKey: searchShowHideShortcutKey ?? null,
-    checkUpdates: checkUpdates ?? true,
   };
 }
 
@@ -144,6 +141,7 @@ function getAppearance({
  */
 function getClassification({
   width = 140,
+  height = 30,
   layout = "left",
   mouseHover = false,
   mouseHoverMs = 0,
@@ -156,6 +154,7 @@ function getClassification({
   switchClassificationCollapseOtherSubClassification = false,
 }: {
   width?: number | null;
+  height?: number | null;
   layout?: string | null;
   mouseHover?: boolean | null;
   mouseHoverMs?: number | null;
@@ -169,6 +168,7 @@ function getClassification({
 }): Classification {
   return {
     width: width ?? 140,
+    height: height ?? 30,
     layout: layout ?? "left",
     mouseHover: mouseHover ?? false,
     mouseHoverMs: mouseHoverMs ?? 0,
@@ -177,10 +177,8 @@ function getClassification({
     nameAlign: nameAlign ?? "left",
     mode: mode ?? "normal",
     autoSwitchClassification: autoSwitchClassification ?? false,
-    hideWindowCollapseSubClassification:
-      hideWindowCollapseSubClassification ?? false,
-    switchClassificationCollapseOtherSubClassification:
-      switchClassificationCollapseOtherSubClassification ?? false,
+    hideWindowCollapseSubClassification: hideWindowCollapseSubClassification ?? false,
+    switchClassificationCollapseOtherSubClassification: switchClassificationCollapseOtherSubClassification ?? false,
   };
 }
 
@@ -189,17 +187,23 @@ function getClassification({
  * @returns
  */
 function getSubClassification({
+  marginLeft = 10,
+  height = 30,
   itemAreaNameFontSize = 14,
   itemAreaNameFontWeight = 700,
   itemAreaNameFontLineHeight = 1.25,
   itemAreaNameAlign = "left",
 }: {
+  marginLeft?: number | null;
+  height?: number | null;
   itemAreaNameFontSize?: number | null;
   itemAreaNameFontWeight?: number | null;
   itemAreaNameFontLineHeight?: number | null;
   itemAreaNameAlign?: "left" | "center" | "right" | null;
 }): SubClassification {
   return {
+    marginLeft: marginLeft ?? 10,
+    height: height ?? 30,
     itemAreaNameFontSize: itemAreaNameFontSize ?? 14,
     itemAreaNameFontWeight: itemAreaNameFontWeight ?? 700,
     itemAreaNameFontLineHeight: itemAreaNameFontLineHeight ?? 1.25,

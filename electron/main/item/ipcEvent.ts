@@ -130,8 +130,8 @@ function saveBackgroundImageToLocal(item: Item): Item {
         const { execSync } = require("node:child_process");
         
         try {
-          // 同步下载图片
-          execSync(`curl -o "${tempPath}" "${item.data.backgroundImage}"`, { timeout: 10000 });
+          // 同步下载图片，添加 -L 选项以跟随重定向
+          execSync(`curl -L -o "${tempPath}" "${item.data.backgroundImage}"`, { timeout: 10000 });
           sourcePath = tempPath;
         } catch (error) {
           throw new Error(`下载远程图片失败: ${error}`);

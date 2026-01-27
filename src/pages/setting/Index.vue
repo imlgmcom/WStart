@@ -343,24 +343,7 @@
                 ></NFormItem
               >
             </NForm>
-            <NForm
-              label-placement="left"
-              label-width="auto"
-              :show-feedback="false"
-              size="small"
-              class="mt-3"
-            >
-              <span class="block font-semibold">{{
-                store.language.update
-              }}</span>
-              <NFormItem class="mt-1"
-                ><NCheckbox
-                  v-model:checked="setting.general.checkUpdates"
-                  :focusable="false"
-                  >{{ store.language.checkUpdates }}</NCheckbox
-                >
-              </NFormItem>
-            </NForm>
+
           </div>
           <div class="mx-2" v-if="selectedMenuId === 1">
             <div>
@@ -713,6 +696,16 @@
                   :show-button="false"
                 ></NInputNumber>
               </NFormItem>
+              <NFormItem :label="'高度'" class="mt-1">
+                <NInputNumber
+                  v-model:value="setting.classification.height"
+                  size="small"
+                  :min="0"
+                  class="w-full"
+                  placeholder=""
+                  :show-button="false"
+                ></NInputNumber>
+              </NFormItem>
             </NForm>
             <NForm
               label-placement="left"
@@ -857,6 +850,29 @@
           </div>
           <div class="mx-2" v-if="selectedMenuId === 3">
             <NForm label-placement="left" :show-feedback="false" size="small">
+              <span class="block font-semibold">{{ store.language.size }}</span>
+              <NFormItem :label="'左边距'" class="mt-1">
+                <NInputNumber
+                  v-model:value="setting.subClassification.marginLeft"
+                  size="small"
+                  :min="0"
+                  class="w-full"
+                  placeholder=""
+                  :show-button="false"
+                ></NInputNumber>
+              </NFormItem>
+              <NFormItem :label="'高度'" class="mt-1">
+                <NInputNumber
+                  v-model:value="setting.subClassification.height"
+                  size="small"
+                  :min="0"
+                  class="w-full"
+                  placeholder=""
+                  :show-button="false"
+                ></NInputNumber>
+              </NFormItem>
+            </NForm>
+            <NForm label-placement="left" :show-feedback="false" size="small" class="mt-3">
               <span class="block font-semibold">{{ store.language.name }}</span>
               <NFormItem :label="store.language.align" class="mt-1">
                 <NSelect
@@ -877,18 +893,14 @@
               </NFormItem>
               <NFormItem :label="store.language.fontWeight" class="mt-1">
                 <NSelect
-                  v-model:value="
-                    setting.subClassification.itemAreaNameFontWeight
-                  "
+                  v-model:value="setting.subClassification.itemAreaNameFontWeight"
                   :options="fontWeightOptions"
                   size="small"
                 ></NSelect>
               </NFormItem>
               <NFormItem :label="store.language.fontLineHeight" class="mt-1">
                 <NSelect
-                  v-model:value="
-                    setting.subClassification.itemAreaNameFontLineHeight
-                  "
+                  v-model:value="setting.subClassification.itemAreaNameFontLineHeight"
                   :options="fontLineHeightOptions"
                   size="small"
                 ></NSelect>

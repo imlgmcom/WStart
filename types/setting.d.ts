@@ -42,8 +42,6 @@ export interface General {
   switchEnglish: boolean;
   // 搜索显示/隐藏快捷键
   searchShowHideShortcutKey: string | null;
-  // 检查更新
-  checkUpdates: boolean;
 }
 
 // 外观
@@ -92,6 +90,8 @@ export interface Theme {
 export interface Classification {
   // 宽度
   width: number;
+  // 高度
+  height: number;
   // 布局 left top right
   layout: string;
   // 鼠标悬停切换
@@ -116,6 +116,10 @@ export interface Classification {
 
 // 子分类
 export interface SubClassification {
+  // 左边距
+  marginLeft: number;
+  // 高度
+  height: number;
   // 名称字体(项目区域)
   itemAreaNameFontSize: number;
   // 名称粗细(项目区域)

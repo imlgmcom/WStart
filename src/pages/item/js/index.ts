@@ -83,15 +83,39 @@ function setItemWidth() {
       if (store.setting.item.hideItemName) {
         minWidth =
           getIconSize(classificationId ? parseInt(classificationId) : null) + 24;
-        num = Math.floor((width + gap) / (minWidth + gap));
+        // 获取列数设置
+        let columnNumber = getColumnNumber(classificationId ? parseInt(classificationId) : null);
+        // 如果设置了列数且大于1，则使用设置的列数
+        if (columnNumber && columnNumber > 1) {
+          num = columnNumber;
+        } else {
+          // 否则根据宽度计算
+          num = Math.floor((width + gap) / (minWidth + gap));
+        }
       } else {
         if (layout === "tile") {
           // 平铺布局
-          num = Math.floor((width + gap) / (minWidth + gap));
+          // 获取列数设置
+          let columnNumber = getColumnNumber(classificationId ? parseInt(classificationId) : null);
+          // 如果设置了列数且大于1，则使用设置的列数
+          if (columnNumber && columnNumber > 1) {
+            num = columnNumber;
+          } else {
+            // 否则根据宽度计算
+            num = Math.floor((width + gap) / (minWidth + gap));
+          }
         } else if (layout === "list") {
-          // 列表布局：强制显示为一行一个，文字在右侧
-          num = 1;
-          minWidth = width;
+          // 获取列数设置
+          let columnNumber = getColumnNumber(classificationId ? parseInt(classificationId) : null);
+          // 如果设置了列数且大于1，则使用设置的列数
+          if (columnNumber && columnNumber > 1) {
+            num = columnNumber;
+            minWidth = store.setting.item.width;
+          } else {
+            // 否则默认一行一个
+            num = 1;
+            minWidth = width;
+          }
         }
       }
       
@@ -104,10 +128,20 @@ function setItemWidth() {
       items.forEach((item) => {
         const element = item as HTMLElement;
         if (layout === "list") {
-          // 列表布局：强制宽度为100%，flex布局，文字在右侧
-          element.style.width = "100%";
-          element.style.display = "flex";
-          element.style.alignItems = "center";
+          if (num > 1) {
+            // 多列列表模式：使用计算的宽度
+            element.style.width = `${itemWidth}px`;
+            element.style.display = "flex";
+            element.style.alignItems = "center";
+          } else {
+            // 单列列表模式：强制宽度为100%
+            element.style.width = "100%";
+            element.style.display = "flex";
+            element.style.alignItems = "center";
+          }
+        } else if (layout === "tile") {
+          // 平铺布局：使用设置的宽度
+          element.style.width = `${store.setting.item.width}px`;
         } else {
           // 其他布局：使用计算的宽度
           element.style.width = `${itemWidth}px`;
@@ -358,10 +392,10 @@ function moveItemByClassificationId(
   newClassificationId: number
 ) {
   if (store.itemMap.has(oldClassificationId)) {
-    store.itemMap.set(
-      newClassificationId,
-      store.itemMap.get(oldClassificationId)!
-    );
+    // 创建一个新的数组，而不是直接引用，避免子分类和父分类共享同一个数组
+    const oldItems = store.itemMap.get(oldClassificationId)!;
+    const newItems = JSON.parse(JSON.stringify(oldItems));
+    store.itemMap.set(newClassificationId, newItems);
     deleteItemByClassificationId(oldClassificationId);
   } else {
     store.itemMap.set(newClassificationId, []);
@@ -758,6 +792,19 @@ function getIconSize(classificationId: number | null) {
 }
 
 /**
+ * 获取项目列数
+ */
+function getColumnNumber(classificationId: number | null) {
+  if (classificationId) {
+    let classification = getClassificationById(classificationId);
+    if (classification && classification.data.itemColumnNumber) {
+      return classification.data.itemColumnNumber;
+    }
+  }
+  return store.setting.item.columnNumber;
+}
+
+/**
  * 删除无效项目
  * @param id
  */
@@ -872,6 +919,7 @@ export {
   moveItemByClassificationId,
   getLayout,
   getIconSize,
+  getColumnNumber,
   removeInvalidItem,
   getItemByIdList,
   hasChinese,
