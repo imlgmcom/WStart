@@ -1,7 +1,7 @@
 {
   "name": "dawn-launcher",
   "productName": "Wstart",
-  "version": "26.1.291",
+  "version": "26.1.292",
   "main": "dist-electron/main/index.js",
   "description": "Windows 快捷启动工具，帮助您整理杂乱无章的桌面，分门别类管理您的桌面快捷方式，让您的桌面保持干净整洁。",
   "author": "FanChenIO",
@@ -22,7 +22,10 @@
     "preview": "vite preview",
     "rsbuild": "napi build --release --strip ./native",
     "rebuild": "node rebuild.js",
-    "postinstall": "npm run rebuild && npm run rsbuild"
+    "postinstall": "npm run rebuild && npm run rsbuild",
+    "electron:build": "npx electron-builder --win dir",
+    "package:zip": "powershell -Command \"Compress-Archive -Path 'release\\26.1.292\\win-unpacked' -DestinationPath 'release\\Wstart-26.1.292-Windows.zip' \" ",
+    "build:release": "npm run build && npm run electron:build && npm run package:zip"
   },
   "napi": {
     "name": "addon"

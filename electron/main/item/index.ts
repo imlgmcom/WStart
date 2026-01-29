@@ -397,11 +397,23 @@ function convertTarget(idList: Array<number>, type: "Absolute" | "Relative") {
       (!isAbsolute && type === "Absolute")
     ) {
       // 转换目标路径
+      const originalTargetPath = item.data.target;
       item.data.target = convertPath(item.data.target);
       
+      // 检查转换后的目标路径是否为绝对路径
+      const isTargetAbsoluteAfterConvert = isAbsolutePath(item.data.target);
+      
       // 转换背景图路径
-      if (item.data.backgroundImage && isAbsolutePath(item.data.backgroundImage)) {
-        item.data.backgroundImage = convertPath(item.data.backgroundImage);
+      if (item.data.backgroundImage) {
+        // 检查背景图路径是否是相对于项目文件的.wstart目录路径
+        if (item.data.backgroundImage.startsWith('.wstart')) {
+          // 背景图路径是相对于项目文件的.wstart目录路径
+          // 保持不变，因为它已经是相对于项目文件的路径
+        } else {
+          // 背景图路径不是相对于项目文件的.wstart目录路径
+          // 转换路径
+          item.data.backgroundImage = convertPath(item.data.backgroundImage);
+        }
       }
       
       // 转换本地背景图路径
