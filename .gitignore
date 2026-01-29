@@ -45,3 +45,6 @@ Thumbs.db
 # Electron builder files
 builder-debug.yml
 builder-effective-config.yaml
+
+# Trae IDE files
+.trae/

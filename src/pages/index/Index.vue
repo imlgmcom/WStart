@@ -301,15 +301,6 @@ let topRightMenuOptions = ref<Array<any>>([
     },
   },
   {
-    label: store.language.feedback,
-    key: "Feedback",
-    props: {
-      onclick: () => {
-        window.api.openURL("https://support.qq.com/product/487828");
-      },
-    },
-  },
-  {
     label: store.language.exit,
     key: "Exit",
     props: {
