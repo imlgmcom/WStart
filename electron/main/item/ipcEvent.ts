@@ -1,4 +1,4 @@
-import { mkdirSync, copyFileSync, readFileSync, statSync, join, accessSync, createWriteStream, unlinkSync } from "node:fs";
+import { mkdirSync, copyFileSync, readFileSync, statSync, writeFileSync, join, accessSync, createWriteStream, unlinkSync } from "node:fs";
 import { parse } from "node:path";
 import { URL } from "node:url";
 import http from "node:http";
@@ -68,42 +68,113 @@ import {
 } from "../commons/index";
 
 /**
+ * 复制数据到项目所在目录
+ * @param item 项目
+ */
+function copyData(item: Item): void {
+  // 只对项目类型是文件生效
+  if (item.type !== 0) {
+    return;
+  }
+  
+  try {
+    // 获取项目文件所在目录
+    const targetPath = parsePath(item.data.target);
+    const projectDir = parse(targetPath).dir;
+    
+    // 在目录下创建 .wstart 目录
+    const wstartDir = join(projectDir, ".wstart");
+    try {
+      statSync(wstartDir);
+    } catch (e) {
+      mkdirSync(wstartDir, { recursive: true });
+    }
+    
+    // 从目标路径中提取文件名作为前缀
+    const targetFileName = parse(targetPath).name;
+    let baseFileName = (targetFileName || "item").replace(/[^a-zA-Z0-9-_]/g, "_");
+    // 清理多余的下划线
+    baseFileName = baseFileName.replace(/_+/g, "_");
+    // 去除首尾下划线
+    baseFileName = baseFileName.replace(/^_|_$/g, "");
+    // 如果文件名为空，使用默认值
+    baseFileName = baseFileName || "item";
+    
+    // 复制项目图标到 .wstart 目录
+    let iconFileName = `${baseFileName}_ico.png`;
+    let iconPath = join(wstartDir, iconFileName);
+    if (item.data.icon) {
+      // 检查图标是否存在
+      try {
+        let iconFile = item.data.icon;
+        // 检查是否是base64编码的图标
+        if (iconFile.startsWith('data:image/')) {
+          // 提取base64数据
+          const base64Data = iconFile.replace(/^data:image\/[^;]+;base64,/, '');
+          // 转换为Buffer
+          const buffer = Buffer.from(base64Data, 'base64');
+          // 写入文件
+          writeFileSync(iconPath, buffer);
+        } else if (!iconFile.startsWith('http://') && !iconFile.startsWith('https://')) {
+          // 本地文件路径
+          accessSync(iconFile);
+          // 复制图标
+          copyFileSync(iconFile, iconPath);
+        }
+      } catch (e) {
+        // 图标不存在或无法访问，跳过
+        if (process.env.NODE_ENV === "development") {
+          console.error("复制图标失败:", e);
+        }
+      }
+    }
+    
+    // 背景图已经默认保存到项目目录，无需重复复制
+    let coverFileName = `${baseFileName}_cover`;
+    
+    // 创建 wstart.ini 文件
+    const iniPath = join(wstartDir, "wstart.ini");
+    const iniContent = `start = ${parse(targetPath).base}
+ico = ${iconFileName}
+cover = ${coverFileName}`;
+    writeFileSync(iniPath, iniContent);
+  } catch (e) {
+    if (process.env.NODE_ENV === "development") {
+      console.error("复制数据失败:", e);
+    }
+  }
+}
+
+/**
  * 保存背景图到本地
  * @param item
  */
 function saveBackgroundImageToLocal(item: Item): Item {
-  // 只有当saveBackgroundImageOption为1或2时才保存背景图
-  if (item.data && item.data.backgroundImage && (item.data.saveBackgroundImageOption === 1 || item.data.saveBackgroundImageOption === 2)) {
+  // 如果有背景图，保存到项目所在目录的.wstart目录
+  if (item.data && item.data.backgroundImage) {
     try {
       // 检测是否为远程URL
       const isRemoteUrl = /^https?:\/\//i.test(item.data.backgroundImage);
       
-      // 检查背景图是否已经是本地保存的图片，避免重复保存
-      let isAlreadySaved = false;
-      if (!isRemoteUrl) {
-        // 检查背景图是否已经是本地保存的图片
-        if (item.data.saveBackgroundImageOption === 1) {
-          // 保存到wstart目录，检查是否已经在目标目录
-          const wstartDir = getUserDataPath() + "\\itemBackgroundImages";
-          isAlreadySaved = item.data.backgroundImage.includes(wstartDir);
-        } else if (item.data.saveBackgroundImageOption === 2) {
-          // 保存到项目目录，检查是否已经在项目的.wstart目录
-          let projectDir: string;
-          if (item.type === 0) {
-            projectDir = parse(item.data.target || "").dir || process.cwd();
-          } else if (item.type === 1) {
-            projectDir = item.data.target || process.cwd();
-          } else {
-            projectDir = process.cwd();
-          }
-          const wstartDir = projectDir + "\\.wstart";
-          isAlreadySaved = item.data.backgroundImage.includes(wstartDir);
-        }
+      // 获取项目所在目录
+      let projectDir: string;
+      if (item.type === 0) {
+        // 文件类型，获取文件所在目录
+        projectDir = parse(item.data.target || "").dir || process.cwd();
+      } else if (item.type === 1) {
+        // 文件夹类型，直接使用target
+        projectDir = item.data.target || process.cwd();
+      } else {
+        // 其他类型，使用当前工作目录
+        projectDir = process.cwd();
       }
       
-      // 如果已经是保存的图片，直接返回，不做任何处理
-      if (isAlreadySaved) {
-        return item;
+      // 创建.wstart目录
+      let wstartDir = projectDir + "\\.wstart";
+      try {
+        statSync(wstartDir);
+      } catch (e) {
+        mkdirSync(wstartDir, { recursive: true });
       }
       
       // 解析源路径
@@ -145,87 +216,47 @@ function saveBackgroundImageToLocal(item: Item): Item {
       let parsedPath = parse(sourcePath);
       let fileExt = parsedPath.ext || ".jpg";
       
-      // 根据选项决定保存路径
-      let destPath: string;
-      let oldFilePath: string | null = null;
+      // 从目标路径中提取文件名作为前缀，与复制数据功能保持一致
+      const targetFileName = parse(item.data.target || "").name;
+      let baseFileName = (targetFileName || "item").replace(/[^a-zA-Z0-9-_]/g, "_");
+      // 清理多余的下划线
+      baseFileName = baseFileName.replace(/_+/g, "_");
+      // 去除首尾下划线
+      baseFileName = baseFileName.replace(/^_|_$/g, "");
+      // 如果文件名为空，使用默认值
+      baseFileName = baseFileName || "item";
       
-      if (item.data.saveBackgroundImageOption === 1) {
-        // 保存到wstart目录（原逻辑）
-        // 目标目录
-        let destDir = getUserDataPath() + "\\itemBackgroundImages";
-        
-        // 确保目标目录存在
-        try {
-          statSync(destDir);
-        } catch (e) {
-          mkdirSync(destDir, { recursive: true });
-        }
-        
-        // 生成唯一文件名
-        let fileName = item.id + "_" + Date.now() + fileExt;
-        // 目标路径
-        destPath = destDir + "\\" + fileName;
-        
-        // 记录旧文件路径，用于后续删除
-        oldFilePath = item.data.localBackgroundImage;
-        
-        // 更新项目数据
-        item.data.localBackgroundImage = destPath;
-      } else {
-        // 保存到项目目录
-        // 获取项目所在目录，对于所有类型的项目都尝试保存
-        let projectDir: string;
-        if (item.type === 0) {
-          // 文件类型，获取文件所在目录
-          projectDir = parse(item.data.target || "").dir || process.cwd();
-        } else if (item.type === 1) {
-          // 文件夹类型，直接使用target
-          projectDir = item.data.target || process.cwd();
-        } else {
-          // 其他类型，使用当前工作目录或用户数据目录
-          projectDir = process.cwd();
-        }
-        
-        // 创建.wstart目录
-        let wstartDir = projectDir + "\\.wstart";
-        try {
-          statSync(wstartDir);
-        } catch (e) {
-          mkdirSync(wstartDir, { recursive: true });
-        }
-        
-        // 使用项目名称作为文件名，确保文件名唯一
-        let baseFileName = (item.name || "item").replace(/[^a-zA-Z0-9-_]/g, "_");
-        let fileName = baseFileName + "_" + Date.now() + fileExt;
-        // 目标路径
-        destPath = wstartDir + "\\" + fileName;
-        
-        // 记录旧文件路径，用于后续删除
-        oldFilePath = item.data.projectBackgroundImage;
-        
-        // 更新项目数据
-        item.data.projectBackgroundImage = destPath;
-      }
+      // 目标路径，与复制数据功能保持一致的命名格式
+      let destPath = wstartDir + "\\" + baseFileName + "_cover" + fileExt;
       
       // 复制文件到最终位置
       copyFileSync(sourcePath, destPath);
       
-      // 保存成功后，将 backgroundImage 更新为本地路径，确保前端使用本地路径
-      item.data.backgroundImage = destPath;
-      
-      // 删除旧的背景图文件，仅当有旧文件且与新文件不同时才删除
-      if (oldFilePath && oldFilePath !== destPath) {
-        try {
-          // 检查旧文件是否存在
-          accessSync(oldFilePath);
-          // 删除旧文件
-          unlinkSync(oldFilePath);
-        } catch (e) {
-          if (process.env.NODE_ENV === "development") {
-            console.error("删除旧背景图文件失败:", e);
-          }
+      // 检查项目路径是否为相对路径
+      let backgroundImagePath: string;
+      if (isAbsolutePath(item.data.target)) {
+        // 绝对路径，使用绝对路径
+        backgroundImagePath = destPath;
+      } else {
+        // 相对路径，使用相对于项目文件的路径
+        // 获取项目文件的目录部分
+        const targetDir = parse(item.data.target).dir;
+        // 生成相对于项目文件的背景图路径
+        if (targetDir) {
+          // 如果项目路径包含目录部分，背景图路径是相对于项目文件所在目录的
+          backgroundImagePath = targetDir + "\\.wstart\\" + baseFileName + "_cover" + fileExt;
+        } else {
+          // 如果项目路径不包含目录部分，背景图路径是相对于当前目录的
+          backgroundImagePath = ".wstart\\" + baseFileName + "_cover" + fileExt;
         }
       }
+      
+      // 保存成功后，将 backgroundImage 更新为本地路径
+      item.data.backgroundImage = backgroundImagePath;
+      
+      // 清除旧的背景图路径
+      item.data.localBackgroundImage = null;
+      item.data.projectBackgroundImage = null;
       
       // 如果是远程图片，删除临时文件
       if (isRemoteUrl && sourcePath !== item.data.backgroundImage) {
@@ -326,6 +357,10 @@ export default function () {
       item = saveBackgroundImageToLocal(item);
       // 更新项目数据
       update(item);
+      // 复制数据
+      if (global.setting.item.copyData) {
+        copyData(item);
+      }
     }
     setShortcutKey();
     event.returnValue = item;
@@ -336,6 +371,10 @@ export default function () {
     let updatedItem = saveBackgroundImageToLocal(args);
     // 更新项目
     let res = update(updatedItem);
+    // 复制数据
+    if (res && updatedItem && global.setting.item.copyData) {
+      copyData(updatedItem);
+    }
     setShortcutKey();
     // 通知主窗口更新项目
     if (res && updatedItem) {

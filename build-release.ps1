@@ -1,20 +1,37 @@
-# 构建发布脚本
-Write-Host "开始构建发布..." -ForegroundColor Green
+# ���������ű�
+Write-Host "��ʼ��������..." -ForegroundColor Green
 
-# 安装依赖
-Write-Host "安装依赖..." -ForegroundColor Yellow
+# ��װ����
+Write-Host "��װ����..." -ForegroundColor Yellow
 npm install
 
-# 重新编译native模块
-Write-Host "重新编译native模块..." -ForegroundColor Yellow
+# ���±���nativeģ��
+Write-Host "���±���nativeģ��..." -ForegroundColor Yellow
 npm run rebuild
 
-# 构建项目
-Write-Host "构建项目..." -ForegroundColor Yellow
+# ����Rust��������addon.node
+Write-Host "����Rust��������addon.node..." -ForegroundColor Yellow
+npm run rsbuild
+
+# ������Ŀ
+Write-Host "������Ŀ..." -ForegroundColor Yellow
 npm run build
 
-# 打包发布
-Write-Host "打包发布..." -ForegroundColor Yellow
+# �������
+Write-Host "�������..." -ForegroundColor Yellow
 npx electron-builder --win dir
 
-Write-Host "构建完成！" -ForegroundColor Green
+# ����� ZIP �ļ�
+Write-Host "����� ZIP �ļ�..." -ForegroundColor Yellow
+$version = (Get-Content -Path package.json -Raw | ConvertFrom-Json).version
+$sourcePath = "release\$version\win-unpacked"
+$destinationPath = "release\Wstart-$version-Windows.zip"
+
+if (Test-Path $sourcePath) {
+    Compress-Archive -Path $sourcePath -DestinationPath $destinationPath -Force
+    Write-Host "ZIP �ļ������ɣ�$destinationPath" -ForegroundColor Green
+} else {
+    Write-Host "�����Ҳ���ԴĿ¼ $sourcePath" -ForegroundColor Red
+}
+
+Write-Host "������ɣ�" -ForegroundColor Green

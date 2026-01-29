@@ -414,30 +414,7 @@
                   <span v-else class="text-gray-400">{{ store.language.noImage }}</span>
                 </div>
               </div>
-              <!-- 保存背景图选项 -->
-              <div class="mt-2">
-                <div class="text-sm mb-2">{{ store.language.saveBackgroundImage || '保存背景图' }}</div>
-                <div class="flex flex-col space-y-2">
-                  <label class="flex items-center cursor-pointer">
-                    <input 
-                      type="radio" 
-                      v-model="form.data.saveBackgroundImageOption" 
-                      :value="1" 
-                      class="mr-2"
-                    >
-                    <span>{{ store.language.saveBackgroundImageToWstart || '保存到wstart目录' }}</span>
-                  </label>
-                  <label class="flex items-center cursor-pointer">
-                    <input 
-                      type="radio" 
-                      v-model="form.data.saveBackgroundImageOption" 
-                      :value="2" 
-                      class="mr-2"
-                    >
-                    <span>{{ store.language.saveBackgroundImageToProject || '保存到项目目录' }}</span>
-                  </label>
-                </div>
-              </div>
+
             </div>
             <!-- 备注 -->
             <div
@@ -563,8 +540,48 @@ function convertLocalPathToFileUrl(path: string): string {
   // 确保输入路径是字符串
   let inputPath = String(path);
   
+  // 检查是否是相对路径
+  if (!inputPath.startsWith('file://') && !/^[a-zA-Z]:[\\/]/.test(inputPath) && !/^\\\\/.test(inputPath)) {
+    // 相对路径，需要转换为绝对路径
+    // 获取项目目标路径
+    const targetPath = form.data.target;
+    if (targetPath) {
+      try {
+        // 计算项目目标文件的绝对路径
+        const absoluteTargetPath = window.api.convertPath(targetPath);
+        // 解析项目目标路径
+        const targetDir = absoluteTargetPath.substring(0, absoluteTargetPath.lastIndexOf('\\') + 1);
+        
+        // 检查背景图路径是否已经包含项目目录
+        if (inputPath.startsWith('.wstart')) {
+          // 背景图路径是相对于项目目录的.wstart目录
+          // 直接使用项目目录的绝对路径加上背景图路径
+          let absolutePath = targetDir + inputPath;
+          // 处理Windows盘符，将 C:\... 或 C:/... 转换为 file:///C:/...
+          let url = absolutePath.replace(/^([a-zA-Z]):[\\/]/, (match, drive) => {
+            return `file:///${drive}:/`;
+          });
+          // 将所有反斜杠转换为斜杠
+          url = url.replace(/[\\]/g, '/');
+          return url;
+        } else {
+          // 其他相对路径情况
+          let absolutePath = targetDir + inputPath;
+          // 处理Windows盘符，将 C:\... 或 C:/... 转换为 file:///C:/...
+          let url = absolutePath.replace(/^([a-zA-Z]):[\\/]/, (match, drive) => {
+            return `file:///${drive}:/`;
+          });
+          // 将所有反斜杠转换为斜杠
+          url = url.replace(/[\\]/g, '/');
+          return url;
+        }
+      } catch (e) {
+        console.error('转换相对路径失败:', e);
+      }
+    }
+  }
+  
   // 处理Windows盘符，将 C:\... 或 C:/... 转换为 file:///C:/...
-  // 修复正则表达式，确保正确匹配Windows盘符
   let url = inputPath.replace(/^([a-zA-Z]):[\\/]/, (match, drive) => {
     return `file:///${drive}:/`;
   });
@@ -766,7 +783,48 @@ function getURLInfo() {
 // 转换路径
 function convertPath() {
   if (form.data.target) {
+    // 先获取目标路径的当前状态（绝对/相对）
+    const isTargetAbsolute = isAbsolutePath(form.data.target);
+    
+    // 获取项目文件的绝对路径，用于后续计算
+    let absoluteTargetPath;
+    if (isTargetAbsolute) {
+      // 如果已经是绝对路径，直接使用
+      absoluteTargetPath = form.data.target;
+    } else {
+      // 如果是相对路径，转换为绝对路径
+      absoluteTargetPath = window.api.convertPath(form.data.target);
+    }
+    const absoluteTargetDir = absoluteTargetPath.substring(0, absoluteTargetPath.lastIndexOf('\\') + 1);
+    
+    // 转换目标路径
     form.data.target = window.api.convertPath(form.data.target);
+    
+    // 同时转换背景图路径
+    if (form.data.backgroundImage) {
+      // 提取背景图文件名
+      let backgroundFileName;
+      if (form.data.backgroundImage.lastIndexOf('\\') > -1) {
+        backgroundFileName = form.data.backgroundImage.substring(form.data.backgroundImage.lastIndexOf('\\') + 1);
+      } else if (form.data.backgroundImage.lastIndexOf('/') > -1) {
+        backgroundFileName = form.data.backgroundImage.substring(form.data.backgroundImage.lastIndexOf('/') + 1);
+      } else {
+        backgroundFileName = form.data.backgroundImage;
+      }
+      
+      // 计算背景图的绝对路径
+      const absoluteBackgroundPath = absoluteTargetDir + '.wstart\\' + backgroundFileName;
+      
+      // 根据转换后的目标路径类型，设置背景图路径
+      if (isAbsolutePath(form.data.target)) {
+        // 目标路径是绝对路径，背景图路径也使用绝对路径
+        form.data.backgroundImage = absoluteBackgroundPath;
+      } else {
+        // 目标路径是相对路径，背景图路径也使用相对路径
+        // 与目标路径保持一致的相对路径格式
+        form.data.backgroundImage = '.wstart\\' + backgroundFileName;
+      }
+    }
   }
 }
 

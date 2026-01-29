@@ -50,14 +50,14 @@
         <!-- Background image -->
         <div 
           class="cover-card-bg w-full" 
-          :style="{
-            backgroundImage: (item.data.localBackgroundImage || item.data.backgroundImage) ? `url('${convertLocalPathToFileUrl(item.data.localBackgroundImage || item.data.backgroundImage)}')` : undefined,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            backgroundRepeat: 'no-repeat',
-            height: store.setting.item.hideItemName ? '100%' : '150px',
-            backgroundColor: !item.data.localBackgroundImage && !item.data.backgroundImage ? store.setting.appearance.theme.mainBackgroundColor : undefined,
-          }"
+    :style="{
+      backgroundImage: (item.data.localBackgroundImage || item.data.backgroundImage) ? `url('${convertLocalPathToFileUrl(item.data.localBackgroundImage || item.data.backgroundImage, item)}')` : undefined,
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      backgroundRepeat: 'no-repeat',
+      height: store.setting.item.hideItemName ? '100%' : '150px',
+      backgroundColor: !item.data.localBackgroundImage && !item.data.backgroundImage ? store.setting.appearance.theme.mainBackgroundColor : undefined,
+    }"
         >
           <!-- Icon container -->
           <div class="cover-card-icon-container flex justify-center items-center h-full">
@@ -210,18 +210,43 @@ const store = useMainStore();
 /**
  * 将本地文件路径转换为file:// URL
  * @param path 本地文件路径
+ * @param item 项目对象，用于获取目标路径
  * @returns file:// URL
  */
-function convertLocalPathToFileUrl(path: string): string {
+function convertLocalPathToFileUrl(path: string, item?: any): string {
   if (!path) return path;
   
+  // 检查是否是相对路径
+  if (!path.startsWith('file://') && !/^[a-zA-Z]:[\\/]/.test(path) && !/^\\\\/.test(path)) {
+    // 相对路径，需要转换为绝对路径
+    if (item && item.data && item.data.target) {
+      try {
+        // 计算项目目标文件的绝对路径
+        const absoluteTargetPath = window.api.convertPath(item.data.target);
+        // 解析项目目标路径
+        const targetDir = absoluteTargetPath.substring(0, absoluteTargetPath.lastIndexOf('\\') + 1);
+        // 计算绝对路径
+        let absolutePath = targetDir + path;
+        // 处理Windows盘符，将 C:\... 或 C:/... 转换为 file:///C:/...
+        let url = absolutePath.replace(/^([a-zA-Z]):[\\/]/, (match, drive) => {
+          return `file:///${drive}:/`;
+        });
+        // 将所有反斜杠转换为斜杠
+        url = url.replace(/[\\]/g, '/');
+        return url;
+      } catch (e) {
+        console.error('转换相对路径失败:', e);
+      }
+    }
+  }
+  
   // 处理Windows盘符，将 C:\... 转换为 file:///C:/...
-  let url = path.replace(/^([a-zA-Z]):\\/, (match, drive) => {
+  let url = path.replace(/^([a-zA-Z]):[\\/]/, (match, drive) => {
     return `file:///${drive}:/`;
   });
   
   // 将所有反斜杠转换为斜杠
-  url = url.replace(/\\/g, '/');
+  url = url.replace(/[\\]/g, '/');
   
   return url;
 }

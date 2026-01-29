@@ -232,6 +232,7 @@ function getItem({
   fontWeight = 400,
   fontLineHeight = 1.25,
   promptShowPath = false,
+  copyData = true,
 }: {
   layout?: string | null;
   iconSize?: number | null;
@@ -249,6 +250,7 @@ function getItem({
   fontWeight?: number | null;
   fontLineHeight?: number | null;
   promptShowPath?: boolean | null;
+  copyData?: boolean | null;
 }): Item {
   return {
     layout: layout ?? "tile",
@@ -267,6 +269,7 @@ function getItem({
     fontWeight: fontWeight ?? 400,
     fontLineHeight: fontLineHeight ?? 1.25,
     promptShowPath: promptShowPath ?? false,
+    copyData: copyData ?? true,
   };
 }
 

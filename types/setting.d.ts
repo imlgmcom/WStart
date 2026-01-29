@@ -164,6 +164,8 @@ export interface Item {
   fontLineHeight: number;
   // 提示：显示路径
   promptShowPath: boolean;
+  // 复制数据
+  copyData: boolean;
 }
 
 // 快速搜索

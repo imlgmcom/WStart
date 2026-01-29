@@ -1109,6 +1109,15 @@
                   >{{ store.language.checkInvalidItem }}</NCheckbox
                 >
               </NFormItem>
+              <NFormItem>
+                <NCheckbox
+                  v-model:checked="setting.item.copyData"
+                  :focusable="false"
+                  >复制数据</NCheckbox
+                >
+              </NFormItem>
+              <Desc :content="'只对项目类型是文件生效，会在项目所在目录创建.wstart目录并复制相关数据'">
+              </Desc>
             </NForm>
           </div>
           <div class="mx-2" v-if="selectedMenuId === 5">

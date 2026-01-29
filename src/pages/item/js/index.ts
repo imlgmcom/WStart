@@ -254,7 +254,6 @@ function updateItem(item: Item) {
       curItem.data.iconBackgroundColor = item.data.iconBackgroundColor;
       curItem.data.fixedIcon = item.data.fixedIcon;
       curItem.data.backgroundImage = item.data.backgroundImage;
-      curItem.data.saveBackgroundImage = item.data.saveBackgroundImage;
       curItem.data.saveBackgroundImageOption = item.data.saveBackgroundImageOption;
       curItem.data.localBackgroundImage = item.data.localBackgroundImage;
       curItem.data.projectBackgroundImage = item.data.projectBackgroundImage;
@@ -504,7 +503,7 @@ function searchItem(
     let found = false;
     if (hasChinese(key)) {
       // 包含中文
-      let res: Array<any> = match(key, text, {
+      let res: Array<any> | null = match(key, text, {
         continuous: true,
         space: "preserve",
       });
